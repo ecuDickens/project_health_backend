@@ -1,0 +1,11 @@
+_default_:
+    openjpa.ConnectionProperties:
+        DriverClassName: com.mysql.jdbc.Driver
+        Url: jdbc:mysql://127.0.0.1:3306/health
+        MaxActive: 20
+        MaxWait: 10000
+        TestOnBorrow: true
+        ValidationQuery: select 1 from dual
+        Username: apiuser
+        Password: n7qyk06cSzvKee1F
+

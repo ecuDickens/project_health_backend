@@ -1,0 +1,13 @@
+<!-- Glassfish bindings file -->
+<glassfish-web-app httpservlet-security-provider="RoutingSAM">
+    <!-- Security role mapping -->
+    <security-role-mapping>
+        <role-name>superuser</role-name>
+        <group-name>superusers</group-name>
+    </security-role-mapping>
+    <security-role-mapping>
+        <role-name>customer</role-name>
+        <group-name>customers</group-name>
+    </security-role-mapping>
+    <class-loader delegate="false"/>
+</glassfish-web-app>
