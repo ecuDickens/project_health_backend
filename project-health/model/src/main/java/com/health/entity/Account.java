@@ -2,18 +2,16 @@ package com.health.entity;
 
 import com.health.datetime.TimestampDeserializer;
 import com.health.datetime.TimestampSerializer;
-import com.google.common.base.Strings;
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "ACCOUNT")
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public class Account implements Serializable {
+public class Account {
     @Id
     @GeneratedValue
     @Column(name = "ID")

@@ -76,8 +76,12 @@ public class AccountResource {
     @POST
     @Path("/{account_id}")
     public Response updateAccount(@PathParam("account_id") final Long profileId, final Account account) throws HttpException {
-        final Account updatedAccount = jpaHelper.updateAccount(account.withId(profileId));
-
-        return Response.ok(updatedAccount).build();
+        if (!Strings.isNullOrEmpty(account.getEmail()) && !emailMatcher.validate(account.getEmail())) {
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity(new ErrorType("Invalid email address for update."))
+                    .build();
+        }
+        return Response.ok(jpaHelper.updateAccount(account.withId(profileId))).build();
     }
 }
