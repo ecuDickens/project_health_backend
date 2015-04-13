@@ -7,12 +7,13 @@ import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "PROFILE")
+@Table(name = "ACCOUNT")
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public class Profile {
+public class Account implements Serializable {
     @Id
     @GeneratedValue
     @Column(name = "ID")
@@ -31,10 +32,19 @@ public class Profile {
     @Column(name = "EMAIL")
     private String email;
 
-    @Column(name = "NAME")
-    private String name;
+    @Column(name = "FIRST_NAME")
+    private String firstName;
 
-    public Profile () {}
+    @Column(name = "LAST_NAME")
+    private String lastName;
+
+    @Column(name = "MIDDLE_INITIAL")
+    private String middleInitial;
+
+    @Column(name = "GENDER")
+    private String gender;
+
+    public Account() {}
 
     public Long getId() {
         return id;
@@ -64,52 +74,64 @@ public class Profile {
         this.email = email;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public Profile withEmail(final String email) {
+    public String getLastName() {
+        return lastName;
+    }
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getMiddleInitial() {
+        return middleInitial;
+    }
+    public void setMiddleInitial(String middleInitial) {
+        this.middleInitial = middleInitial;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public Account withEmail(final String email) {
         setEmail(email);
         return this;
     }
-    public Profile withName(final String name) {
-        setName(name);
+    public Account withGender(final String gender) {
+        setGender(gender);
         return this;
     }
-    public Profile withId(final Long id) {
+    public Account withMiddleInitial(final String middleInitial) {
+        setMiddleInitial(middleInitial);
+        return this;
+    }
+    public Account withLastName(final String lastName) {
+        setLastName(lastName);
+        return this;
+    }
+    public Account withFirstName(final String firstName) {
+        setFirstName(firstName);
+        return this;
+    }
+    public Account withId(final Long id) {
         setId(id);
         return this;
     }
-    public Profile withCreatedDatetime(final Timestamp createdDatetime) {
+    public Account withCreatedDatetime(final Timestamp createdDatetime) {
         setCreatedDatetime(createdDatetime);
         return this;
     }
-    public Profile withLastModifiedDatetime(final Timestamp lastModifiedDatetime) {
+    public Account withLastModifiedDatetime(final Timestamp lastModifiedDatetime) {
         setLastModifiedDatetime(lastModifiedDatetime);
         return this;
-    }
-
-    public String toString() {
-        StringBuilder builder = new StringBuilder("{");
-        if (null != id) {
-            builder.append(String.format("\"id\":\"%s\"", id));
-        }
-        if (!Strings.isNullOrEmpty(name)) {
-            builder.append(String.format(",\"name\":\"%s\"", name));
-        }
-        if (!Strings.isNullOrEmpty(email)) {
-            builder.append(String.format(",\"email\":\"%s\"", email));
-        }
-        if (null != createdDatetime) {
-            builder.append(String.format(",\"created_datetime\":\"%s\"", createdDatetime));
-        }
-        if (null != lastModifiedDatetime) {
-            builder.append(String.format(",\"last_modified_datetime\":\"%s\"", lastModifiedDatetime));
-        }
-        builder.append("}");
-        return builder.toString();
     }
 }

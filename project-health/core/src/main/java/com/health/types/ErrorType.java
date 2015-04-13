@@ -12,14 +12,10 @@ import java.io.IOException;
 /**
  * Represents errors or exceptions
  */
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class ErrorType {
 
-    private static final XLogger LOGGER = XLoggerFactory.getXLogger(ErrorType.class);
-
-    /** message */
     private String message;
-
-    /** messages */
     private Iterable<String> messages;
 
     public ErrorType() {
@@ -33,20 +29,16 @@ public class ErrorType {
         this.setMessage(message);
     }
 
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public String getMessage() {
         return message;
     }
-
     public void setMessage(String message) {
         this.message = message;
     }
 
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public Iterable<String> getMessages() {
         return messages;
     }
-
     public void setMessages(Iterable<String> messages) {
         this.messages = messages;
     }
@@ -65,7 +57,6 @@ public class ErrorType {
         try {
             return MapperProvider.INSTANCE.writeValueAsString(this);
         } catch (IOException e) {
-            LOGGER.error("Failed to serialize " + this.getClass().getCanonicalName(), e);
             return e.getMessage();
         }
     }
