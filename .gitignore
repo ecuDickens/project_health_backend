@@ -13,4 +13,3 @@ generated/
 *.class
 derby.log
 **/classes/
-stratus-project/stratus-config-files/
