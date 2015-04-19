@@ -2,12 +2,12 @@ package com.health.entity;
 
 import com.health.datetime.TimestampDeserializer;
 import com.health.datetime.TimestampSerializer;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.DateTime;
 
 import javax.persistence.*;
-import java.sql.Blob;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -37,7 +37,7 @@ public class Exercise {
     private String name;
 
     @Column(name = "Description")
-    private Blob description;
+    private String description;
 
     @Column(name = "CALORIES_BURNED_PER_HOUR", nullable = false)
     private Integer caloriesBurnedPerHour;
@@ -84,10 +84,10 @@ public class Exercise {
         this.name = name;
     }
 
-    public Blob getDescription() {
+    public String getDescription() {
         return description;
     }
-    public void setDescription(Blob description) {
+    public void setDescription(String description) {
         this.description = description;
     }
 
@@ -121,16 +121,21 @@ public class Exercise {
         setName(name);
         return this;
     }
-    public Exercise withDescription(final Blob description) {
+    public Exercise withDescription(final String description) {
         setDescription(description);
         return this;
     }
-    public Exercise withCaloriesConsumed(final Integer caloriesConsumed) {
-        setCaloriesBurnedPerHour(caloriesConsumed);
+    public Exercise withCaloriesBurnedPerHour(final Integer caloriesBurnedPerHour) {
+        setCaloriesBurnedPerHour(caloriesBurnedPerHour);
         return this;
     }
     public Exercise withExerciseRecords(final List<ExerciseRecord> exerciseRecords) {
         setExerciseRecords(exerciseRecords);
         return this;
+    }
+
+    @JsonIgnore
+    public void clean() {
+        exerciseRecords = null;
     }
 }

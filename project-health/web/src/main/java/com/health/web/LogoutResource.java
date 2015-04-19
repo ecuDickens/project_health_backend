@@ -5,7 +5,6 @@ import com.health.base.ThrowingFunction1;
 import com.health.entity.Account;
 import com.health.exception.HttpException;
 import com.health.helper.JpaHelper;
-import com.health.types.ErrorType;
 
 import javax.persistence.EntityManager;
 import javax.ws.rs.*;
@@ -13,7 +12,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static javax.persistence.LockModeType.PESSIMISTIC_WRITE;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 
 @Path("/logout")
 @Consumes({ MediaType.APPLICATION_JSON })
@@ -29,28 +27,19 @@ public class LogoutResource {
 
     @POST
     @Path("/{account_id}")
-    public Response login(@PathParam("account_id") final Long accountId) throws HttpException {
-
-        try {
-            jpaHelper.executeJpaTransaction(new ThrowingFunction1<Integer, EntityManager, HttpException>() {
-                @Override
-                public Integer apply(EntityManager em) throws HttpException {
-                    final Account forUpdate = em.find(Account.class, accountId);
-                    if (null != forUpdate) {
-                        em.refresh(forUpdate, PESSIMISTIC_WRITE);
-                        forUpdate.setLastLoginDateTime(null);
-                    }
-
-                    return null;
+    public Response logout(@PathParam("account_id") final Long accountId) throws HttpException {
+        jpaHelper.executeJpaTransaction(new ThrowingFunction1<Integer, EntityManager, HttpException>() {
+            @Override
+            public Integer apply(EntityManager em) throws HttpException {
+                final Account forUpdate = em.find(Account.class, accountId);
+                if (null != forUpdate) {
+                    em.refresh(forUpdate, PESSIMISTIC_WRITE);
+                    forUpdate.setLastLoginDateTime(null);
                 }
-            });
-        } catch (Exception e) {
-            return Response
-                    .status(BAD_REQUEST)
-                    .entity(new ErrorType("Account not found."))
-                    .build();
-        }
 
+                return null;
+            }
+        });
         return Response.ok().build();
     }
 }

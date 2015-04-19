@@ -70,7 +70,7 @@ public class LoginResource {
 
     @POST
     @Path("/{account_id}")
-    public Response login(@PathParam("account_id") final Long accountId,
+    public Response updateEmailAndPassword(@PathParam("account_id") final Long accountId,
                           @QueryParam("email") final String email,
                           @QueryParam("password") final String password) throws HttpException {
         if (isNullOrEmpty(email) || isNullOrEmpty(password)) {

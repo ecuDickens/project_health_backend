@@ -23,6 +23,10 @@ import static com.health.helper.JpaHelper.LOGGED_OUT_RESPONSE;
 import static javax.persistence.LockModeType.PESSIMISTIC_WRITE;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 
+/**
+ * Contains calls for creating, loading, and updating account and related child records.
+ * Child calls are passed to the related child resource for processing.
+ */
 @Path("/accounts")
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
