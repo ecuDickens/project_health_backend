@@ -169,7 +169,7 @@ public class AccountResource {
                         .withLastName(isNullOrEmpty(account.getLastName()) ? forUpdate.getLastName() : account.getLastName())
                         .withMiddleName(isNullOrEmpty(account.getMiddleName()) ? forUpdate.getMiddleName() : account.getMiddleName())
                         .withGender(isNullOrEmpty(account.getGender()) ? forUpdate.getGender() : account.getGender())
-                        .withIsShareAccount(null != account.getIsShareAccount() ? forUpdate.getIsShareAccount() : account.getIsShareAccount())
+                        .withIsShareAccount(null == account.getIsShareAccount() ? forUpdate.getIsShareAccount() : account.getIsShareAccount())
                         .withLastName(isNullOrEmpty(account.getLastName()) ? forUpdate.getLastName() : account.getLastName());
                 return forUpdate;
             }
