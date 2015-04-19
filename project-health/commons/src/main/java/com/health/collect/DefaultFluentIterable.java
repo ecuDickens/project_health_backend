@@ -16,9 +16,6 @@ import org.codehaus.jackson.type.JavaType;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
-import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * A default implementation of FluentIterable.
@@ -50,6 +47,15 @@ public class DefaultFluentIterable<T> implements FluentIterable<T> {
     @Override
     public T get(int position) {
         return Iterables.get(delegate, position);
+    }
+
+    @Override
+    public Optional<T> first() {
+        // get the iterator only once
+        final Iterator<T> iterator = delegate.iterator();
+        return iterator.hasNext() ?
+                Optional.of(iterator.next()) :
+                Optional.<T>absent();
     }
 
     @Override

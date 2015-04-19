@@ -1,23 +1,29 @@
 package com.health.web;
 
-import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 import com.health.base.ThrowingFunction1;
+import com.health.collect.MoreCollections;
+import com.health.datetime.DateTimeUtils;
+import com.health.entity.*;
 import com.health.exception.HttpException;
+import com.health.helper.JpaHelper;
 import com.health.matchers.EmailMatcher;
 import com.health.types.ErrorType;
-import com.google.inject.Inject;
-import com.health.entity.Account;
-import com.health.helper.JpaHelper;
-import org.joda.time.DateTime;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import java.sql.Timestamp;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.sql.Date;
+import java.util.List;
 
-@Path("/profiles")
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.health.helper.JpaHelper.LOGGED_OUT_RESPONSE;
+import static javax.persistence.LockModeType.PESSIMISTIC_WRITE;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+
+@Path("/accounts")
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
 public class AccountResource {
@@ -32,56 +38,145 @@ public class AccountResource {
     }
 
     @POST
-    public Response createAccount(final Account account) throws HttpException {
-
+    public Response createAccount(@QueryParam("password") final String password, final Account account) throws HttpException {
         String error = "";
-        if (Strings.isNullOrEmpty(account.getFirstName()) || Strings.isNullOrEmpty(account.getLastName())) {
+        if (isNullOrEmpty(account.getFirstName()) || isNullOrEmpty(account.getLastName())) {
             error = "First and Last Name required";
-        } else if (Strings.isNullOrEmpty(account.getEmail()) || !emailMatcher.validate(account.getEmail())) {
-            error = "Valid email address required";
+        } else if (isNullOrEmpty(account.getEmail()) || !emailMatcher.validate(account.getEmail()) | isNullOrEmpty(password)) {
+            error = "Valid email address and password required";
         }
 
-        if (!Strings.isNullOrEmpty(error)) {
+        if (!isNullOrEmpty(error)) {
             return Response
-                    .status(Response.Status.BAD_REQUEST)
+                    .status(BAD_REQUEST)
                     .entity(new ErrorType(error))
                     .build();
         }
 
-        final Long profileId = jpaHelper.createAccount(account);
-        if (null == profileId) {
-            return Response.noContent()
-                    .status(Response.Status.BAD_REQUEST)
+        final Long accountId = jpaHelper.executeJpaTransaction(new ThrowingFunction1<Long, EntityManager, HttpException>() {
+            @Override
+            public Long apply(EntityManager em) throws HttpException {
+                final HashKey hashKey = new HashKey().withHashCode(HashKey.generateHashCode(account.getEmail(), password));
+                em.persist(hashKey);
+                em.flush();
+
+                account.setHashKey(hashKey.getHashCode());
+                em.persist(account);
+                em.flush();
+                return account.getId();
+            }
+        });
+
+        if (null == accountId) {
+            return Response
+                    .status(BAD_REQUEST)
                     .entity(new ErrorType("Unable to create account"))
                     .build();
         }
 
-        return Response.ok(new Account().withId(profileId)).build();
+        return Response.ok(new Account().withId(accountId)).build();
     }
 
 
     @GET
     @Path("/{account_id}")
-    public Response getAccount(@PathParam("account_id") final Long accountId) throws HttpException {
-        final Account account = jpaHelper.getAccount(accountId);
+    public Response getAccount(@PathParam("account_id") final Long accountId,
+                               @QueryParam("return_sleep") final Boolean returnSleep,
+                               @QueryParam("return_exercise") final Boolean returnExercise,
+                               @QueryParam("return_food") final Boolean returnFood,
+                               @QueryParam("start_date") final String startDate,
+                               @QueryParam("end_date") final String endDate) throws HttpException {
+        if (!jpaHelper.isLoggedIn(accountId)) {
+            return LOGGED_OUT_RESPONSE;
+        }
+
+        final Date parsedStartDate = !isNullOrEmpty(startDate) ? new Date(DateTimeUtils.parse(startDate).getMillis()) : null;
+        final Date parsedEndDate = !isNullOrEmpty(endDate) ? new Date(DateTimeUtils.parse(endDate).getMillis()) : null;
+        final Account account = jpaHelper.executeJpa(new ThrowingFunction1<Account, EntityManager, HttpException>() {
+            @Override
+            public Account apply(EntityManager em) throws HttpException {
+                final Account account = em.find(Account.class, accountId);
+                if (null == returnExercise || !returnExercise) {
+                    account.setExerciseRecords(null);
+                } else if ((null != parsedStartDate || null != parsedEndDate) && !MoreCollections.isNullOrEmpty(account.getExerciseRecords())) {
+                    final List<ExerciseRecord> exerciseRecords = Lists.newArrayList();
+                    for (ExerciseRecord record : account.getExerciseRecords()) {
+                        if ((null == parsedStartDate || record.getRecordDate().compareTo(parsedStartDate) >= 0) &&
+                            (null == parsedEndDate || record.getRecordDate().compareTo(parsedEndDate) <= 0)) {
+                            exerciseRecords.add(record);
+                        }
+                    }
+                    account.setExerciseRecords(exerciseRecords);
+                }
+                if (null == returnSleep || !returnSleep) {
+                    account.setSleepRecords(null);
+                } else if ((null != parsedStartDate || null != parsedEndDate) && !MoreCollections.isNullOrEmpty(account.getSleepRecords())) {
+                    final List<SleepRecord> sleepRecords = Lists.newArrayList();
+                    for (SleepRecord record : account.getSleepRecords()) {
+                        if ((null == parsedStartDate || record.getRecordDate().compareTo(parsedStartDate) >= 0) &&
+                                (null == parsedEndDate || record.getRecordDate().compareTo(parsedEndDate) <= 0)) {
+                            sleepRecords.add(record);
+                        }
+                    }
+                    account.setSleepRecords(sleepRecords);
+                }
+                if (null == returnFood || !returnFood) {
+                    account.setFoodRecords(null);
+                } else if ((null != parsedStartDate || null != parsedEndDate) && !MoreCollections.isNullOrEmpty(account.getFoodRecords())) {
+                    final List<FoodRecord> foodRecords = Lists.newArrayList();
+                    for (FoodRecord record : account.getFoodRecords()) {
+                        if ((null == parsedStartDate || record.getRecordDate().compareTo(parsedStartDate) >= 0) &&
+                                (null == parsedEndDate || record.getRecordDate().compareTo(parsedEndDate) <= 0)) {
+                            foodRecords.add(record);
+                        }
+                    }
+                    account.setFoodRecords(foodRecords);
+                }
+                return account;
+            }
+        });
         if (null == account) {
             return Response.noContent()
-                    .status(Response.Status.NOT_FOUND)
                     .entity(new ErrorType("Account not found"))
                     .build();
         }
+        account.clean();
         return Response.ok(account).build();
     }
 
     @POST
     @Path("/{account_id}")
-    public Response updateAccount(@PathParam("account_id") final Long profileId, final Account account) throws HttpException {
-        if (!Strings.isNullOrEmpty(account.getEmail()) && !emailMatcher.validate(account.getEmail())) {
+    public Response updateAccount(@PathParam("account_id") final Long accountId,
+                                  final Account account) throws HttpException {
+        if (!jpaHelper.isLoggedIn(accountId)) {
+            return LOGGED_OUT_RESPONSE;
+        }
+
+        if (!isNullOrEmpty(account.getEmail())) {
             return Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .entity(new ErrorType("Invalid email address for update."))
+                    .status(BAD_REQUEST)
+                    .entity(new ErrorType("Unable to update email."))
                     .build();
         }
-        return Response.ok(jpaHelper.updateAccount(account.withId(profileId))).build();
+
+        final Account forUpdate = jpaHelper.executeJpaTransaction(new ThrowingFunction1<Account, EntityManager, HttpException>() {
+            @Override
+            public Account apply(EntityManager em) throws HttpException {
+                final Account forUpdate = em.find(Account.class, accountId);
+                em.refresh(forUpdate, PESSIMISTIC_WRITE);
+                forUpdate
+                        .withFirstName(isNullOrEmpty(account.getFirstName()) ? forUpdate.getFirstName() : account.getFirstName())
+                        .withLastName(isNullOrEmpty(account.getLastName()) ? forUpdate.getLastName() : account.getLastName())
+                        .withMiddleName(isNullOrEmpty(account.getMiddleName()) ? forUpdate.getMiddleName() : account.getMiddleName())
+                        .withGender(isNullOrEmpty(account.getGender()) ? forUpdate.getGender() : account.getGender())
+                        .withIsShareAccount(null != account.getIsShareAccount() ? forUpdate.getIsShareAccount() : account.getIsShareAccount())
+                        .withLastName(isNullOrEmpty(account.getLastName()) ? forUpdate.getLastName() : account.getLastName());
+                return forUpdate;
+            }
+        });
+        if (null != forUpdate) {
+            forUpdate.clean();
+        }
+        return Response.ok(forUpdate).build();
     }
 }

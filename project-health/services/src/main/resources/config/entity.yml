@@ -1,4 +1,9 @@
 # From services
-- com.health.web.spg.entity.Request
 - com.health.entity.Account
+- com.health.entity.SleepRecord
+- com.health.entity.FoodRecord
+- com.health.entity.ExerciseRecord
+- com.health.entity.Recipe
+- com.health.entity.Exercise
+- com.health.entity.HashKey
 

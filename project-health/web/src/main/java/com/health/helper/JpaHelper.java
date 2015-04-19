@@ -1,27 +1,34 @@
 package com.health.helper;
 
-import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.health.base.ThrowingFunction1;
 import com.health.entity.Account;
+import com.health.entity.HashKey;
 import com.health.exception.HttpException;
 import com.health.jpa.session.EntitySession;
 import com.health.jpa.spi.JpaEntityManagerService;
 import com.health.types.ErrorType;
 import org.joda.time.DateTime;
+import org.joda.time.Minutes;
 
 import javax.persistence.*;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
 import java.sql.Timestamp;
 
+import static com.health.collect.MoreIterables.asFluent;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+
 @Singleton
 public class JpaHelper {
 
     private JpaEntityManagerService jpaManagerService;
 
-    private static String account_query = "SELECT i FROM Account i where i.id = :id";
+    public static Response LOGGED_OUT_RESPONSE = Response
+            .status(UNAUTHORIZED)
+            .entity(new ErrorType("Login expired, please login again."))
+            .build();
 
     @Inject
     public JpaHelper(JpaEntityManagerService jpaManagerService) {
@@ -73,47 +80,38 @@ public class JpaHelper {
         });
     }
 
-    public Long createAccount(final Account account) throws HttpException {
-        return executeJpaTransaction(new ThrowingFunction1<Long, EntityManager, HttpException>() {
+
+    public Boolean isLoggedIn(final Long accountId) throws HttpException {
+        return executeJpaTransaction(new ThrowingFunction1<Boolean, EntityManager, HttpException>() {
             @Override
-            public Long apply(EntityManager em) throws HttpException {
-                account
-                        .withCreatedDatetime(new Timestamp(DateTime.now().getMillis()))
-                        .withLastModifiedDatetime(new Timestamp(DateTime.now().getMillis()));
-                em.persist(account);
-                em.flush();
-                return account.getId();
+            public Boolean apply(EntityManager em) throws HttpException {
+                Boolean isLoggedIn = Boolean.FALSE;
+                final Account account = em.find(Account.class, accountId);
+                if (null != account.getLastLoginDateTime()) {
+                    final DateTime now = DateTime.now();
+                    isLoggedIn =  Minutes.minutesBetween(new DateTime(account.getLastLoginDateTime()), now).getMinutes() < 20;
+                    if (isLoggedIn) {
+                        em.refresh(account, LockModeType.PESSIMISTIC_WRITE);
+                        account.setLastLoginDateTime( new Timestamp(now.getMillis()));
+                    }
+                }
+                return isLoggedIn;
             }
         });
     }
-    public Account getAccount(final Long accountId) throws HttpException {
-        return executeJpa(new ThrowingFunction1<Account, EntityManager, HttpException>() {
-            @Override
-            public Account apply(EntityManager em) throws HttpException {
-                return getAccount(accountId, em);
-            }
-        });
+
+    public Account getAccountByEmail(final EntityManager em, final String email) {
+        final TypedQuery<Account> query = em.createQuery("select a from Account a where a.email = :email", Account.class);
+        query.setParameter("email", email);
+        return asFluent(query.getResultList()).first().orNull();
     }
-    public Account getAccount(final Long accountId, final EntityManager em) {
-        TypedQuery<Account> query = em.createQuery(account_query, Account.class);
-        query.setParameter("id", accountId);
-        return query.getSingleResult();
+
+    public HashKey getHashKey(final EntityManager em, final String email, final String password) {
+        return getHashKey(em, HashKey.generateHashCode(email, password));
     }
-    public Account updateAccount(final Account account) throws HttpException {
-        return executeJpaTransaction(new ThrowingFunction1<Account, EntityManager, HttpException>() {
-            @Override
-            public Account apply(EntityManager em) throws HttpException {
-                final Account accountForUpdate = getAccount(account.getId(), em);
-                em.refresh(accountForUpdate, LockModeType.PESSIMISTIC_WRITE);
-                accountForUpdate
-                        .withEmail(Strings.isNullOrEmpty(account.getEmail()) ? accountForUpdate.getEmail() : account.getEmail())
-                        .withFirstName(Strings.isNullOrEmpty(account.getFirstName()) ? accountForUpdate.getFirstName() : account.getFirstName())
-                        .withLastName(Strings.isNullOrEmpty(account.getLastName()) ? accountForUpdate.getLastName() : account.getLastName())
-                        .withMiddleInitial(Strings.isNullOrEmpty(account.getMiddleInitial()) ? accountForUpdate.getMiddleInitial() : account.getMiddleInitial())
-                        .withGender(Strings.isNullOrEmpty(account.getGender()) ? accountForUpdate.getGender() : account.getGender())
-                        .withLastModifiedDatetime(new Timestamp(DateTime.now().getMillis()));
-                return account;
-            }
-        });
+    public HashKey getHashKey(final EntityManager em, final Integer hashCode) {
+        final TypedQuery<HashKey> hquery = em.createQuery("select a from HashKey a where a.hashCode = :hashCode", HashKey.class);
+        hquery.setParameter("hashCode", hashCode);
+        return asFluent(hquery.getResultList()).first().orNull();
     }
 }

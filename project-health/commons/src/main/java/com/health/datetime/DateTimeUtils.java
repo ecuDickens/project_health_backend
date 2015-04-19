@@ -15,7 +15,7 @@ public final class DateTimeUtils {
     /** Date time formatter yyyy-MM-dd'T'HH:mm:ssZ  and supports parsing  yyyy-MM-dd'T'HH:mm:ssZZ  */
     private static final DateTimeFormatter DATE_TIME_FORMATTER = ISODateTimeFormat.dateTimeNoMillis().withZoneUTC();
     /** ISO Date Format "yyyy-MM-dd" */
-    private static final DateTimeFormatter DATE_FORMATTER = ISODateTimeFormat.date().withZoneUTC();
+    public static final DateTimeFormatter DATE_FORMATTER = ISODateTimeFormat.date();
     
     /** don't instantiate me! */
     private DateTimeUtils() {

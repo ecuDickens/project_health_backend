@@ -1,6 +1,7 @@
 package com.health.collect;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ListMultimap;
 
@@ -21,6 +22,13 @@ public interface FluentIterable<T> extends PeekingIterable<T> {
      * Returns the element at position.
      */
     T get(int position);
+
+    /**
+     * Returns an optional that contains the first element
+     * in this iterable. If this iterable is empty, this
+     * returns Optional.absent().
+     */
+    Optional<T> first();
 
     /**
      * Returns true if the predicate returns true for any element

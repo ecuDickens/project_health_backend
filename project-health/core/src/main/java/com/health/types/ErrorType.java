@@ -2,10 +2,7 @@ package com.health.types;
 
 
 import com.health.core.map.MapperProvider;
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.slf4j.ext.XLogger;
-import org.slf4j.ext.XLoggerFactory;
 
 import java.io.IOException;
 
@@ -45,11 +42,6 @@ public class ErrorType {
 
     public void setMessage(Throwable message) {
         this.message = message.getMessage();
-    }
-
-    @JsonProperty("tid")
-    public long getThreadId() {
-        return Thread.currentThread().getId();
     }
 
     @Override
