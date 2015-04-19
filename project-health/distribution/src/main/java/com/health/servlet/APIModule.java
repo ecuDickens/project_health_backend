@@ -3,6 +3,7 @@ package com.health.servlet;
 import com.google.inject.AbstractModule;
 import com.health.web.AccountResource;
 import com.health.web.LoginResource;
+import com.health.web.LogoutResource;
 
 public class APIModule extends AbstractModule {
 
@@ -10,5 +11,6 @@ public class APIModule extends AbstractModule {
     protected void configure() {
         bind(AccountResource.class);
         bind(LoginResource.class);
+        bind(LogoutResource.class);
     }
 }
