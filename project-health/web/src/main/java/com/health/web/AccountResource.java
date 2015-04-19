@@ -35,12 +35,24 @@ public class AccountResource {
     private final JpaHelper jpaHelper;
     private final EmailMatcher emailMatcher;
     private final RecipeResource recipeResource;
+    private final FoodRecordResource foodRecordResource;
+    private final ExerciseRecordResource exerciseRecordResource;
+    private final SleepRecordResource sleepRecordResource;
+
 
     @Inject
-    public AccountResource(JpaHelper jpaHelper, EmailMatcher emailMatcher, RecipeResource recipeResource) {
+    public AccountResource(JpaHelper jpaHelper,
+                           EmailMatcher emailMatcher,
+                           RecipeResource recipeResource,
+                           FoodRecordResource foodRecordResource,
+                           ExerciseRecordResource exerciseRecordResource,
+                           SleepRecordResource sleepRecordResource) {
         this.jpaHelper = jpaHelper;
         this.emailMatcher = emailMatcher;
         this.recipeResource = recipeResource;
+        this.foodRecordResource = foodRecordResource;
+        this.exerciseRecordResource = exerciseRecordResource;
+        this.sleepRecordResource = sleepRecordResource;
     }
 
     @POST
@@ -183,6 +195,8 @@ public class AccountResource {
         return Response.ok().build();
     }
 
+    /**---------------------------------- Recipe Calls ----------------------------------**/
+
     @POST
     @Path("/{account_id}/recipes")
     public Response createRecipe(@PathParam("account_id") final Long accountId, final Recipe recipe) throws HttpException {
@@ -209,5 +223,121 @@ public class AccountResource {
     public Response deleteRecipe(@PathParam("account_id") final Long accountId,
                                  @PathParam("recipe_id") final Long recipeId) throws HttpException {
         return recipeResource.deleteRecipe(accountId, recipeId);
+    }
+
+    /**---------------------------------- Food Record Calls ----------------------------------**/
+
+    @POST
+    @Path("/{account_id}/food_records")
+    public Response createFoodRecord(@PathParam("account_id") final Long accountId, final FoodRecord record) throws HttpException {
+        return foodRecordResource.createFoodRecord(accountId, record);
+    }
+
+    @GET
+    @Path("/{account_id}/food_records")
+    public Response loadFoodRecords(@PathParam("account_id") final Long accountId,
+                                    @QueryParam("start_date") final Date startDate,
+                                    @QueryParam("end_date") final Date endDate) throws HttpException {
+        return foodRecordResource.loadFoodRecords(accountId, startDate, endDate);
+    }
+
+    @GET
+    @Path("/{account_id}/food_records/{record_id}")
+    public Response loadFoodRecord(@PathParam("account_id") final Long accountId,
+                                   @PathParam("record_id") final Long recordId) throws HttpException {
+        return foodRecordResource.loadFoodRecord(accountId, recordId);
+    }
+
+    @POST
+    @Path("/{account_id}/food_records/{record_id}")
+    public Response updateFoodRecord(@PathParam("account_id") final Long accountId,
+                                     @PathParam("record_id") final Long recordId,
+                                     final FoodRecord record) throws HttpException {
+        return foodRecordResource.updateFoodRecord(accountId, recordId, record);
+    }
+
+    @DELETE
+    @Path("/{account_id}/food_records/{record_id}")
+    public Response deleteFoodRecord(@PathParam("account_id") final Long accountId,
+                                     @PathParam("record_id") final Long recordId) throws HttpException {
+        return foodRecordResource.deleteFoodRecord(accountId, recordId);
+    }
+
+    /**---------------------------------- Exercise Record Calls ----------------------------------**/
+
+    @POST
+    @Path("/{account_id}/exercise_records")
+    public Response createExerciseRecord(@PathParam("account_id") final Long accountId,
+                                         final ExerciseRecord record) throws HttpException {
+        return exerciseRecordResource.createExerciseRecord(accountId, record);
+    }
+
+    @GET
+    @Path("/{account_id}/exercise_records")
+    public Response loadExerciseRecords(@PathParam("account_id") final Long accountId,
+                                        @QueryParam("start_date") final Date startDate,
+                                        @QueryParam("end_date") final Date endDate) throws HttpException {
+        return exerciseRecordResource.loadExerciseRecords(accountId, startDate, endDate);
+    }
+
+    @GET
+    @Path("/{account_id}/exercise_records/{record_id}")
+    public Response loadExerciseRecord(@PathParam("account_id") final Long accountId,
+                                       @PathParam("record_id") final Long recordId) throws HttpException {
+        return exerciseRecordResource.loadExerciseRecord(accountId, recordId);
+    }
+
+    @POST
+    @Path("/{account_id}/exercise_records/{record_id}")
+    public Response updateExerciseRecord(@PathParam("account_id") final Long accountId,
+                                         @PathParam("record_id") final Long recordId,
+                                         final ExerciseRecord record) throws HttpException {
+        return exerciseRecordResource.updateExerciseRecord(accountId, recordId, record);
+    }
+
+    @DELETE
+    @Path("/{account_id}/exercise_records/{record_id}")
+    public Response deleteExerciseRecord(@PathParam("account_id") final Long accountId,
+                                         @PathParam("record_id") final Long recordId) throws HttpException {
+        return exerciseRecordResource.deleteExerciseRecord(accountId, recordId);
+    }
+
+    /**---------------------------------- Sleep Record Calls ----------------------------------**/
+
+    @POST
+    @Path("/{account_id}/sleep_records")
+    public Response createSleepRecord(@PathParam("account_id") final Long accountId,
+                                      final SleepRecord record) throws HttpException {
+        return sleepRecordResource.createSleepRecord(accountId, record);
+    }
+
+    @GET
+    @Path("/{account_id}/sleep_records")
+    public Response loadSleepRecords(@PathParam("account_id") final Long accountId,
+                                     @QueryParam("start_date") final Date startDate,
+                                     @QueryParam("end_date") final Date endDate) throws HttpException {
+        return sleepRecordResource.loadSleepRecords(accountId, startDate, endDate);
+    }
+
+    @GET
+    @Path("/{account_id}/sleep_records/{record_id}")
+    public Response loadSleepRecord(@PathParam("account_id") final Long accountId,
+                                    @PathParam("record_id") final Long recordId) throws HttpException {
+        return sleepRecordResource.loadSleepRecord(accountId, recordId);
+    }
+
+    @POST
+    @Path("/{account_id}/sleep_records/{record_id}")
+    public Response updateSleepRecord(@PathParam("account_id") final Long accountId,
+                                      @PathParam("record_id") final Long recordId,
+                                      final SleepRecord record) throws HttpException {
+        return sleepRecordResource.updateSleepRecord(accountId, recordId, record);
+    }
+
+    @DELETE
+    @Path("/{account_id}/sleep_records/{record_id}")
+    public Response deleteSleepRecord(@PathParam("account_id") final Long accountId,
+                                      @PathParam("record_id") final Long recordId) throws HttpException {
+        return sleepRecordResource.deleteSleepRecord(accountId, recordId);
     }
 }
