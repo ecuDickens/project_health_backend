@@ -2,12 +2,12 @@ package com.health.entity;
 
 import com.health.datetime.TimestampDeserializer;
 import com.health.datetime.TimestampSerializer;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.annotate.JsonDeserialize;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.joda.time.DateTime;
 
 import javax.persistence.*;
-import java.sql.Blob;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -33,6 +33,10 @@ public class Recipe {
     @JsonDeserialize(using=TimestampDeserializer.class)
     private Timestamp lastModifiedDatetime;
 
+    @ManyToOne(optional=false)
+    @JoinColumn(name="ACCOUNT_ID", referencedColumnName="ID")
+    private Account account;
+
     @Column(name = "ACCOUNT_ID")
     private Long accountId;
 
@@ -40,7 +44,7 @@ public class Recipe {
     private String name;
 
     @Column(name = "DESCRIPTION")
-    private Blob description;
+    private String description;
 
     @Column(name = "CALORIES_CONSUMED", nullable = false)
     private Integer caloriesConsumed;
@@ -80,6 +84,13 @@ public class Recipe {
         this.lastModifiedDatetime = lastModifiedDatetime;
     }
 
+    public Account getAccount() {
+        return account;
+    }
+    public void setAccount(Account account) {
+        this.account = account;
+    }
+
     public Long getAccountId() {
         return accountId;
     }
@@ -94,10 +105,10 @@ public class Recipe {
         this.name = name;
     }
 
-    public Blob getDescription() {
+    public String getDescription() {
         return description;
     }
-    public void setDescription(Blob description) {
+    public void setDescription(String description) {
         this.description = description;
     }
 
@@ -127,6 +138,10 @@ public class Recipe {
         setLastModifiedDatetime(lastModifiedDatetime);
         return this;
     }
+    public Recipe withAccount(final Account account) {
+        setAccount(account);
+        return this;
+    }
     public Recipe withAccountId(final Long accountId) {
         setAccountId(accountId);
         return this;
@@ -135,7 +150,7 @@ public class Recipe {
         setName(name);
         return this;
     }
-    public Recipe withDescription(final Blob description) {
+    public Recipe withDescription(final String description) {
         setDescription(description);
         return this;
     }
@@ -146,5 +161,11 @@ public class Recipe {
     public Recipe withFoodRecords(final List<FoodRecord> foodRecords) {
         setFoodRecords(foodRecords);
         return this;
+    }
+
+    @JsonIgnore
+    public void clean() {
+        account = null;
+        foodRecords = null;
     }
 }

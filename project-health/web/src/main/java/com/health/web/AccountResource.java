@@ -34,11 +34,13 @@ public class AccountResource {
 
     private final JpaHelper jpaHelper;
     private final EmailMatcher emailMatcher;
+    private final RecipeResource recipeResource;
 
     @Inject
-    public AccountResource(JpaHelper jpaHelper, EmailMatcher emailMatcher) {
+    public AccountResource(JpaHelper jpaHelper, EmailMatcher emailMatcher, RecipeResource recipeResource) {
         this.jpaHelper = jpaHelper;
         this.emailMatcher = emailMatcher;
+        this.recipeResource = recipeResource;
     }
 
     @POST
@@ -179,5 +181,33 @@ public class AccountResource {
             }
         });
         return Response.ok().build();
+    }
+
+    @POST
+    @Path("/{account_id}/recipes")
+    public Response createRecipe(@PathParam("account_id") final Long accountId, final Recipe recipe) throws HttpException {
+        return recipeResource.createRecipe(accountId, recipe);
+    }
+
+    @GET
+    @Path("/{account_id}/recipes")
+    public Response loadRecipes(@PathParam("account_id") final Long accountId,
+                                @QueryParam("name") final String name,
+                                @QueryParam("id") final Long recipeId) throws HttpException {
+        return recipeResource.loadRecipes(accountId, name, recipeId);
+    }
+
+    @POST
+    @Path("/{account_id}/recipes/{recipe_id}")
+    public Response updateRecipe(@PathParam("account_id") final Long accountId,
+                                 @PathParam("recipe_id") final Long recipeId, final Recipe recipe) throws HttpException {
+        return recipeResource.updateRecipe(accountId, recipeId, recipe);
+    }
+
+    @DELETE
+    @Path("/{account_id}/recipes/{recipe_id}")
+    public Response deleteRecipe(@PathParam("account_id") final Long accountId,
+                                 @PathParam("recipe_id") final Long recipeId) throws HttpException {
+        return recipeResource.deleteRecipe(accountId, recipeId);
     }
 }

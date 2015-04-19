@@ -70,6 +70,9 @@ public class Account {
     @OneToMany(mappedBy = "account", targetEntity = ExerciseRecord.class, fetch = FetchType.EAGER, cascade = ALL)
     private List<ExerciseRecord> exerciseRecords;
 
+    @OneToMany(mappedBy = "account", targetEntity = Recipe.class, cascade = ALL)
+    private List<Recipe> recipes;
+
     public Account() {}
 
     @PrePersist
@@ -184,6 +187,13 @@ public class Account {
         this.exerciseRecords = exerciseRecords;
     }
 
+    public List<Recipe> getRecipes() {
+        return recipes;
+    }
+    public void setRecipes(List<Recipe> recipes) {
+        this.recipes = recipes;
+    }
+
     public Account withId(final Long id) {
         setId(id);
         return this;
@@ -240,6 +250,10 @@ public class Account {
         setExerciseRecords(exerciseRecords);
         return this;
     }
+    public Account withRecipes(final List<Recipe> recipes) {
+        setRecipes(recipes);
+        return this;
+    }
 
     @JsonIgnore
     public void clean() {
@@ -252,5 +266,6 @@ public class Account {
         for (ExerciseRecord exerciseRecord : asFluent(exerciseRecords)) {
             exerciseRecord.clean();
         }
+        recipes = null;
     }
 }
