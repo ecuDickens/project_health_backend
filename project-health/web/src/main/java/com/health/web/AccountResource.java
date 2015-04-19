@@ -159,7 +159,7 @@ public class AccountResource {
                     .build();
         }
 
-        final Account forUpdate = jpaHelper.executeJpaTransaction(new ThrowingFunction1<Account, EntityManager, HttpException>() {
+        jpaHelper.executeJpaTransaction(new ThrowingFunction1<Account, EntityManager, HttpException>() {
             @Override
             public Account apply(EntityManager em) throws HttpException {
                 final Account forUpdate = em.find(Account.class, accountId);
@@ -174,9 +174,6 @@ public class AccountResource {
                 return forUpdate;
             }
         });
-        if (null != forUpdate) {
-            forUpdate.clean();
-        }
-        return Response.ok(forUpdate).build();
+        return Response.ok().build();
     }
 }
