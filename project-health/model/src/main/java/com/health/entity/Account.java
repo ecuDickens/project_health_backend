@@ -73,8 +73,6 @@ public class Account {
     @OneToMany(mappedBy = "account", targetEntity = Recipe.class, cascade = ALL)
     private List<Recipe> recipes;
 
-    public Account() {}
-
     @PrePersist
     protected void onCreate() {
         createdDatetime = new Timestamp(DateTime.now().getMillis());
