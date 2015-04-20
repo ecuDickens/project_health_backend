@@ -19,9 +19,9 @@ import java.sql.Date;
 import java.util.List;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.health.helper.JpaHelper.LOGGED_OUT_RESPONSE;
+import static com.health.helper.JpaHelper.buildResponse;
 import static javax.persistence.LockModeType.PESSIMISTIC_WRITE;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.*;
 
 /**
  * Contains calls for creating, loading, and updating account and related child records.
@@ -57,18 +57,11 @@ public class AccountResource {
 
     @POST
     public Response createAccount(@QueryParam("password") final String password, final Account account) throws HttpException {
-        String error = "";
-        if (isNullOrEmpty(account.getFirstName()) || isNullOrEmpty(account.getLastName())) {
-            error = "First and Last Name required";
-        } else if (isNullOrEmpty(account.getEmail()) || !emailMatcher.validate(account.getEmail()) | isNullOrEmpty(password)) {
-            error = "Valid email address and password required";
-        }
 
-        if (!isNullOrEmpty(error)) {
-            return Response
-                    .status(BAD_REQUEST)
-                    .entity(new ErrorType(error))
-                    .build();
+        if (isNullOrEmpty(account.getFirstName()) || isNullOrEmpty(account.getLastName())) {
+            return buildResponse(BAD_REQUEST, new ErrorType("First and Last Name required"));
+        } else if (isNullOrEmpty(account.getEmail()) || !emailMatcher.validate(account.getEmail()) | isNullOrEmpty(password)) {
+            return buildResponse(BAD_REQUEST, new ErrorType("Valid email address and password required"));
         }
 
         final Long accountId = jpaHelper.executeJpaTransaction(new ThrowingFunction1<Long, EntityManager, HttpException>() {
@@ -86,13 +79,9 @@ public class AccountResource {
         });
 
         if (null == accountId) {
-            return Response
-                    .status(BAD_REQUEST)
-                    .entity(new ErrorType("Unable to create account"))
-                    .build();
+            return buildResponse(BAD_REQUEST, new ErrorType("Unable to create account"));
         }
-
-        return Response.ok(new Account().withId(accountId)).build();
+        return buildResponse(OK, new Account().withId(accountId));
     }
 
 
@@ -105,7 +94,7 @@ public class AccountResource {
                                @QueryParam("start_date") final String startDate,
                                @QueryParam("end_date") final String endDate) throws HttpException {
         if (!jpaHelper.isLoggedIn(accountId)) {
-            return LOGGED_OUT_RESPONSE;
+            return buildResponse(UNAUTHORIZED, new ErrorType("Login expired, please login again."));
         }
 
         final Date parsedStartDate = !isNullOrEmpty(startDate) ? new Date(DateTimeUtils.parse(startDate).getMillis()) : null;
@@ -154,12 +143,10 @@ public class AccountResource {
             }
         });
         if (null == account) {
-            return Response.noContent()
-                    .entity(new ErrorType("Account not found"))
-                    .build();
+            return buildResponse(NO_CONTENT, new ErrorType("Account not found"));
         }
         account.clean();
-        return Response.ok(account).build();
+        return buildResponse(OK, account);
     }
 
     @POST
@@ -167,14 +154,11 @@ public class AccountResource {
     public Response updateAccount(@PathParam("account_id") final Long accountId,
                                   final Account account) throws HttpException {
         if (!jpaHelper.isLoggedIn(accountId)) {
-            return LOGGED_OUT_RESPONSE;
+            return buildResponse(UNAUTHORIZED, new ErrorType("Login expired, please login again."));
         }
 
         if (!isNullOrEmpty(account.getEmail())) {
-            return Response
-                    .status(BAD_REQUEST)
-                    .entity(new ErrorType("Unable to update email."))
-                    .build();
+            return buildResponse(BAD_REQUEST, new ErrorType("Unable to update email."));
         }
 
         jpaHelper.executeJpaTransaction(new ThrowingFunction1<Account, EntityManager, HttpException>() {
@@ -192,7 +176,7 @@ public class AccountResource {
                 return forUpdate;
             }
         });
-        return Response.ok().build();
+        return buildResponse(OK);
     }
 
     /**---------------------------------- Recipe Calls ----------------------------------**/

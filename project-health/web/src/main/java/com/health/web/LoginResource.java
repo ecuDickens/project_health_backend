@@ -8,6 +8,8 @@ import com.health.exception.HttpException;
 import com.health.helper.JpaHelper;
 import com.health.types.ErrorType;
 import org.joda.time.DateTime;
+import org.slf4j.ext.XLogger;
+import org.slf4j.ext.XLoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
@@ -17,13 +19,17 @@ import javax.ws.rs.core.Response;
 import java.sql.Timestamp;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.health.helper.JpaHelper.buildResponse;
 import static javax.persistence.LockModeType.PESSIMISTIC_WRITE;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.OK;
 
 @Path("/login")
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
 public class LoginResource {
+
+    private static final XLogger LOGGER = XLoggerFactory.getXLogger(LoginResource.class);
 
     private final JpaHelper jpaHelper;
 
@@ -36,10 +42,7 @@ public class LoginResource {
     public Response login(@QueryParam("email") final String email,
                           @QueryParam("password") final String password) throws HttpException {
         if (isNullOrEmpty(email) || isNullOrEmpty(password)) {
-            return Response
-                    .status(BAD_REQUEST)
-                    .entity(new ErrorType("Email and password required."))
-                    .build();
+            return buildResponse(BAD_REQUEST, new ErrorType("Email and password required."));
         }
 
         final Long accountId = jpaHelper.executeJpaTransaction(new ThrowingFunction1<Long, EntityManager, HttpException>() {
@@ -59,13 +62,11 @@ public class LoginResource {
         });
 
         if (null == accountId) {
-            return Response
-                    .status(BAD_REQUEST)
-                    .entity(new ErrorType("Email or password was incorrect."))
-                    .build();
+            return buildResponse(BAD_REQUEST, new ErrorType("Email or password was incorrect."));
         }
 
-        return Response.ok(new Account().withId(accountId)).build();
+        LOGGER.info("Logged in");
+        return buildResponse(OK, new Account().withId(accountId));
     }
 
     @POST
@@ -74,10 +75,7 @@ public class LoginResource {
                           @QueryParam("email") final String email,
                           @QueryParam("password") final String password) throws HttpException {
         if (isNullOrEmpty(email) || isNullOrEmpty(password)) {
-            return Response
-                    .status(BAD_REQUEST)
-                    .entity(new ErrorType("Email and password required."))
-                    .build();
+            return buildResponse(BAD_REQUEST, new ErrorType("Email and password required."));
         }
 
         try {
@@ -96,12 +94,8 @@ public class LoginResource {
                 }
             });
         } catch (Exception e) {
-            return Response
-                    .status(BAD_REQUEST)
-                    .entity(new ErrorType("Email already in use."))
-                    .build();
+            return buildResponse(BAD_REQUEST, new ErrorType("Email already in use."));
         }
-
-        return Response.ok(new ErrorType("Email and password updated.")).build();
+        return buildResponse(OK, new ErrorType("Email and password updated."));
     }
 }

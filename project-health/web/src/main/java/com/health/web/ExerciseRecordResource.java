@@ -9,6 +9,9 @@ import com.health.types.ErrorType;
 import javax.ws.rs.core.Response;
 import java.sql.Date;
 
+import static com.health.helper.JpaHelper.buildResponse;
+import static javax.ws.rs.core.Response.Status.OK;
+
 public class ExerciseRecordResource {
 
     private final JpaHelper jpaHelper;
@@ -19,22 +22,22 @@ public class ExerciseRecordResource {
     }
 
     public Response createExerciseRecord(final Long accountId, final ExerciseRecord record) throws HttpException {
-        return Response.ok().entity(new ErrorType("Resource not implemented")).build();
+        return buildResponse(OK, new ErrorType("Resource not implemented"));
     }
 
     public Response loadExerciseRecords(final Long accountId, final Date startDate, final Date endDate) throws HttpException {
-        return Response.ok().entity(new ErrorType("Resource not implemented")).build();
+        return buildResponse(OK, new ErrorType("Resource not implemented"));
     }
 
     public Response loadExerciseRecord(final Long accountId, final Long recordId) throws HttpException {
-        return Response.ok().entity(new ErrorType("Resource not implemented")).build();
+        return buildResponse(OK, new ErrorType("Resource not implemented"));
     }
 
     public Response updateExerciseRecord(final Long accountId, final Long recordId, final ExerciseRecord record) throws HttpException {
-        return Response.ok().entity(new ErrorType("Resource not implemented")).build();
+        return buildResponse(OK, new ErrorType("Resource not implemented"));
     }
 
     public Response deleteExerciseRecord(final Long accountId, final Long recordId) throws HttpException {
-        return Response.ok().entity(new ErrorType("Resource not implemented")).build();
+        return buildResponse(OK, new ErrorType("Resource not implemented"));
     }
 }

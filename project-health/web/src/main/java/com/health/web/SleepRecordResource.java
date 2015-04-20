@@ -9,6 +9,9 @@ import com.health.types.ErrorType;
 import javax.ws.rs.core.Response;
 import java.sql.Date;
 
+import static com.health.helper.JpaHelper.buildResponse;
+import static javax.ws.rs.core.Response.Status.OK;
+
 public class SleepRecordResource {
 
     private final JpaHelper jpaHelper;
@@ -19,22 +22,22 @@ public class SleepRecordResource {
     }
 
     public Response createSleepRecord(final Long accountId, final SleepRecord record) throws HttpException {
-        return Response.ok().entity(new ErrorType("Resource not implemented")).build();
+        return buildResponse(OK, new ErrorType("Resource not implemented"));
     }
 
     public Response loadSleepRecords(final Long accountId, final Date startDate, final Date endDate) throws HttpException {
-        return Response.ok().entity(new ErrorType("Resource not implemented")).build();
+        return buildResponse(OK, new ErrorType("Resource not implemented"));
     }
 
     public Response loadSleepRecord(final Long accountId, final Long recordId) throws HttpException {
-        return Response.ok().entity(new ErrorType("Resource not implemented")).build();
+        return buildResponse(OK, new ErrorType("Resource not implemented"));
     }
 
     public Response updateSleepRecord(final Long accountId, final Long recordId, final SleepRecord record) throws HttpException {
-        return Response.ok().entity(new ErrorType("Resource not implemented")).build();
+        return buildResponse(OK, new ErrorType("Resource not implemented"));
     }
 
     public Response deleteSleepRecord(final Long accountId, final Long recordId) throws HttpException {
-        return Response.ok().entity(new ErrorType("Resource not implemented")).build();
+        return buildResponse(OK, new ErrorType("Resource not implemented"));
     }
 }

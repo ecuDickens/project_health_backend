@@ -11,7 +11,9 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static com.health.helper.JpaHelper.buildResponse;
 import static javax.persistence.LockModeType.PESSIMISTIC_WRITE;
+import static javax.ws.rs.core.Response.Status.OK;
 
 @Path("/logout")
 @Consumes({ MediaType.APPLICATION_JSON })
@@ -40,6 +42,6 @@ public class LogoutResource {
                 return null;
             }
         });
-        return Response.ok().build();
+        return buildResponse(OK);
     }
 }

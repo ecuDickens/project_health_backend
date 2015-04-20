@@ -9,6 +9,9 @@ import com.health.types.ErrorType;
 import javax.ws.rs.core.Response;
 import java.sql.Date;
 
+import static com.health.helper.JpaHelper.buildResponse;
+import static javax.ws.rs.core.Response.Status.OK;
+
 public class FoodRecordResource {
 
     private final JpaHelper jpaHelper;
@@ -19,22 +22,22 @@ public class FoodRecordResource {
     }
 
     public Response createFoodRecord(final Long accountId, final FoodRecord record) throws HttpException {
-        return Response.ok().entity(new ErrorType("Resource not implemented")).build();
+        return buildResponse(OK, new ErrorType("Resource not implemented"));
     }
 
     public Response loadFoodRecords(final Long accountId, final Date startDate, final Date endDate) throws HttpException {
-        return Response.ok().entity(new ErrorType("Resource not implemented")).build();
+        return buildResponse(OK, new ErrorType("Resource not implemented"));
     }
 
     public Response loadFoodRecord(final Long accountId, final Long recordId) throws HttpException {
-        return Response.ok().entity(new ErrorType("Resource not implemented")).build();
+        return buildResponse(OK, new ErrorType("Resource not implemented"));
     }
 
     public Response updateFoodRecord(final Long accountId, final Long recordId, final FoodRecord record) throws HttpException {
-        return Response.ok().entity(new ErrorType("Resource not implemented")).build();
+        return buildResponse(OK, new ErrorType("Resource not implemented"));
     }
 
     public Response deleteFoodRecord(final Long accountId, final Long recordId) throws HttpException {
-        return Response.ok().entity(new ErrorType("Resource not implemented")).build();
+        return buildResponse(OK, new ErrorType("Resource not implemented"));
     }
 }

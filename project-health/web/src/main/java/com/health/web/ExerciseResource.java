@@ -1,5 +1,6 @@
 package com.health.web;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.health.base.ThrowingFunction1;
 import com.health.collect.MoreCollections;
@@ -16,9 +17,11 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.health.helper.JpaHelper.buildResponse;
 import static javax.persistence.LockModeType.PESSIMISTIC_WRITE;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
+import static javax.ws.rs.core.Response.Status.OK;
 
 @Path("/exercises")
 @Consumes({ MediaType.APPLICATION_JSON })
@@ -44,13 +47,9 @@ public class ExerciseResource {
         });
 
         if (null == exerciseId) {
-            return Response
-                    .status(BAD_REQUEST)
-                    .entity(new ErrorType("Unable to create exercise."))
-                    .build();
+            return buildResponse(BAD_REQUEST, new ErrorType("Unable to create exercise."));
         }
-
-        return Response.ok(new Exercise().withId(exerciseId)).build();
+        return buildResponse(OK, new Exercise().withId(exerciseId));
     }
 
     @GET
@@ -69,14 +68,12 @@ public class ExerciseResource {
             }
         });
         if (MoreCollections.isNullOrEmpty(exercises)) {
-            return Response.noContent()
-                    .entity(new ErrorType("Exercises not found"))
-                    .build();
+            return buildResponse(NO_CONTENT, Lists.newArrayList());
         }
         for (Exercise exercise : exercises) {
             exercise.clean();
         }
-        return Response.ok(exercises).build();
+        return buildResponse(OK, exercises);
     }
 
     @GET
@@ -89,15 +86,11 @@ public class ExerciseResource {
             }
         });
         if (null == exercise) {
-            return Response.noContent()
-                    .entity(new ErrorType("Exercise not found"))
-                    .build();
+            return buildResponse(NO_CONTENT, new ErrorType("Exercise not found"));
         }
         exercise.clean();
-        return Response.ok(exercise).build();
+        return buildResponse(OK, exercise);
     }
-
-
 
     @POST
     @Path("/{exercise_id}")
@@ -114,7 +107,7 @@ public class ExerciseResource {
                 return forUpdate;
             }
         });
-        return Response.ok().build();
+        return buildResponse(OK);
     }
 
     @DELETE
@@ -128,6 +121,6 @@ public class ExerciseResource {
                 return null;
             }
         });
-        return Response.status(NO_CONTENT).build();
+        return buildResponse(NO_CONTENT);
     }
 }

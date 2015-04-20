@@ -8,7 +8,6 @@ import com.health.entity.HashKey;
 import com.health.exception.HttpException;
 import com.health.jpa.session.EntitySession;
 import com.health.jpa.spi.JpaEntityManagerService;
-import com.health.types.ErrorType;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 
@@ -18,17 +17,11 @@ import java.net.HttpURLConnection;
 import java.sql.Timestamp;
 
 import static com.health.collect.MoreIterables.asFluent;
-import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 
 @Singleton
 public class JpaHelper {
 
     private JpaEntityManagerService jpaManagerService;
-
-    public static Response LOGGED_OUT_RESPONSE = Response
-            .status(UNAUTHORIZED)
-            .entity(new ErrorType("Login expired, please login again."))
-            .build();
 
     @Inject
     public JpaHelper(JpaEntityManagerService jpaManagerService) {
@@ -113,5 +106,16 @@ public class JpaHelper {
         final TypedQuery<HashKey> hquery = em.createQuery("select a from HashKey a where a.hashCode = :hashCode", HashKey.class);
         hquery.setParameter("hashCode", hashCode);
         return asFluent(hquery.getResultList()).first().orNull();
+    }
+
+    public static Response buildResponse(Response.Status status) {
+        return buildResponse(status, null);
+    }
+    public static Response buildResponse(Response.Status status, Object entity) {
+        return Response
+                .status(status)
+                .header("Access-Control-Allow-Origin", "*")  // hack to get front end and back end talking.
+                .entity(entity)
+                .build();
     }
 }

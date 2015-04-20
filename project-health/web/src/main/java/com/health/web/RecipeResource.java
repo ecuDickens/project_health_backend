@@ -15,10 +15,9 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.health.helper.JpaHelper.LOGGED_OUT_RESPONSE;
+import static com.health.helper.JpaHelper.buildResponse;
 import static javax.persistence.LockModeType.PESSIMISTIC_WRITE;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.NO_CONTENT;
+import static javax.ws.rs.core.Response.Status.*;
 
 public class RecipeResource {
 
@@ -32,7 +31,7 @@ public class RecipeResource {
 
     public Response createRecipe(final Long accountId, final Recipe recipe) throws HttpException {
         if (!jpaHelper.isLoggedIn(accountId)) {
-            return LOGGED_OUT_RESPONSE;
+            return buildResponse(UNAUTHORIZED, new ErrorType("Login expired, please login again."));
         }
 
         final Long recipeId = jpaHelper.executeJpaTransaction(new ThrowingFunction1<Long, EntityManager, HttpException>() {
@@ -46,18 +45,15 @@ public class RecipeResource {
         });
 
         if (null == recipeId) {
-            return Response
-                    .status(BAD_REQUEST)
-                    .entity(new ErrorType("Unable to create recipe."))
-                    .build();
+            return buildResponse(BAD_REQUEST, new ErrorType("Unable to create recipe."));
         }
 
-        return Response.ok(new Recipe().withId(recipeId)).build();
+        return buildResponse(OK, new Recipe().withId(recipeId));
     }
 
     public Response loadRecipes(final Long accountId, final String name, final Long recipeId) throws HttpException {
         if (!jpaHelper.isLoggedIn(accountId)) {
-            return LOGGED_OUT_RESPONSE;
+            return buildResponse(UNAUTHORIZED, new ErrorType("Login expired, please login again."));
         }
 
         final List<Recipe> recipes = jpaHelper.executeJpa(new ThrowingFunction1<List<Recipe>, EntityManager, HttpException>() {
@@ -80,19 +76,17 @@ public class RecipeResource {
             }
         });
         if (MoreCollections.isNullOrEmpty(recipes)) {
-            return Response.noContent()
-                    .entity(new ErrorType("Recipes not found"))
-                    .build();
+            return buildResponse(NO_CONTENT, new ErrorType("Recipes not found"));
         }
         for (Recipe recipe : recipes) {
             recipe.clean();
         }
-        return Response.ok(recipes).build();
+        return buildResponse(OK, recipes);
     }
 
     public Response updateRecipe(final Long accountId, final Long recipeId, final Recipe recipe) throws HttpException {
         if (!jpaHelper.isLoggedIn(accountId)) {
-            return LOGGED_OUT_RESPONSE;
+            return buildResponse(UNAUTHORIZED, new ErrorType("Login expired, please login again."));
         }
 
         jpaHelper.executeJpaTransaction(new ThrowingFunction1<Recipe, EntityManager, HttpException>() {
@@ -107,12 +101,12 @@ public class RecipeResource {
                 return forUpdate;
             }
         });
-        return Response.ok().build();
+        return buildResponse(OK);
     }
 
     public Response deleteRecipe(final Long accountId, final Long recipeId) throws HttpException {
         if (!jpaHelper.isLoggedIn(accountId)) {
-            return LOGGED_OUT_RESPONSE;
+            return buildResponse(UNAUTHORIZED, new ErrorType("Login expired, please login again."));
         }
 
         jpaHelper.executeJpaTransaction(new ThrowingFunction1<Recipe, EntityManager, HttpException>() {
@@ -123,6 +117,6 @@ public class RecipeResource {
                 return null;
             }
         });
-        return Response.status(NO_CONTENT).build();
+        return buildResponse(NO_CONTENT);
     }
 }
