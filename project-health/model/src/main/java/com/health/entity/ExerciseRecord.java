@@ -187,6 +187,8 @@ public class ExerciseRecord {
     @JsonIgnore
     public void clean() {
         account = null;
+        exerciseId = null;
+        exercise.clean();
     }
 }
 

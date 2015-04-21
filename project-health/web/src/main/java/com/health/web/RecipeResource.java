@@ -109,11 +109,10 @@ public class RecipeResource {
             return buildResponse(UNAUTHORIZED, new ErrorType("Login expired, please login again."));
         }
 
-        jpaHelper.executeJpaTransaction(new ThrowingFunction1<Recipe, EntityManager, HttpException>() {
+        jpaHelper.executeJpaTransaction(new ThrowingFunction1<Long, EntityManager, HttpException>() {
             @Override
-            public Recipe apply(EntityManager em) throws HttpException {
-                final Recipe recipe = em.find(Recipe.class, recipeId);
-                em.remove(recipe);
+            public Long apply(EntityManager em) throws HttpException {
+                em.remove(em.find(Recipe.class, recipeId));
                 return null;
             }
         });

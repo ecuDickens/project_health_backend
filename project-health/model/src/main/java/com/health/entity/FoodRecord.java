@@ -173,5 +173,7 @@ public class FoodRecord {
     @JsonIgnore
     public void clean() {
         account = null;
+        recipeId = null;
+        recipe.clean();
     }
 }
