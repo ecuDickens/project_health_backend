@@ -25,6 +25,7 @@ public class DebuggingResponseFilter implements Filter {
             httpResponse.setHeader("X-SN", DomainConstants.SYSTEM_NAME);
             httpResponse.setHeader("Access-Control-Allow-Origin", "*");
             httpResponse.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            httpResponse.setHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, OPTIONS");
         }
         chain.doFilter(request, response);
     }

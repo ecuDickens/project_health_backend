@@ -83,7 +83,6 @@ public class AccountResource {
         return buildResponse(OK, new Account().withId(accountId));
     }
 
-
     @GET
     @Path("/{account_id}")
     public Response getAccount(@PathParam("account_id") final Long accountId,
