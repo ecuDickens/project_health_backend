@@ -1,7 +1,6 @@
 package com.health.servlet;
 
-import com.health.web.AccountResource;
-import com.health.web.BaseResourceModule;
+import com.health.web.*;
 import com.google.inject.throwingproviders.ThrowingProviderBinder;
 import com.sun.jersey.api.container.filter.RolesAllowedResourceFilterFactory;
 import com.sun.jersey.api.json.JSONConfiguration;
@@ -20,6 +19,9 @@ public class JerseyServletModule extends BaseResourceModule {
         super.configureServlets();
 
         bind(AccountResource.class);
+        bind(LoginResource.class);
+        bind(LogoutResource.class);
+        bind(ExerciseResource.class);
 
         final Map<String, String> params = new HashMap<String, String>();
         params.put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE.toString());

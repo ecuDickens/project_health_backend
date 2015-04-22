@@ -39,7 +39,6 @@ public class AccountResource {
     private final ExerciseRecordResource exerciseRecordResource;
     private final SleepRecordResource sleepRecordResource;
 
-
     @Inject
     public AccountResource(JpaHelper jpaHelper,
                            EmailMatcher emailMatcher,

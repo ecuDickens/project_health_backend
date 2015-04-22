@@ -1,10 +1,8 @@
 package com.health.servlet;
 
 
-import com.health.DomainConstants;
 import com.google.inject.Singleton;
-import org.slf4j.ext.XLogger;
-import org.slf4j.ext.XLoggerFactory;
+import com.health.DomainConstants;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;
@@ -25,6 +23,8 @@ public class DebuggingResponseFilter implements Filter {
         if(response instanceof HttpServletResponse) {
             HttpServletResponse httpResponse = (HttpServletResponse)response;
             httpResponse.setHeader("X-SN", DomainConstants.SYSTEM_NAME);
+            httpResponse.setHeader("Access-Control-Allow-Origin", "*");
+            httpResponse.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         }
         chain.doFilter(request, response);
     }

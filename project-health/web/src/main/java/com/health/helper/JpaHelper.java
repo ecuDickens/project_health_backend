@@ -114,7 +114,6 @@ public class JpaHelper {
     public static Response buildResponse(Response.Status status, Object entity) {
         return Response
                 .status(status)
-                .header("Access-Control-Allow-Origin", "*")  // hack to get front end and back end talking.
                 .entity(entity)
                 .build();
     }
